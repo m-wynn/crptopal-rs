@@ -1,0 +1,9 @@
+[package]
+authors = ["Matthew Wynn <matthew@matthewwynn.com>"]
+edition = "2018"
+name = "chal6"
+version = "0.1.0"
+[dependencies]
+base64 = "*"
+hex = "*"
+transpose = "*"
