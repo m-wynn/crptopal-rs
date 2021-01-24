@@ -53,6 +53,7 @@ fn decrypt(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Vec<u8> {
     return plaintext.to_vec();
 }
 
+#[allow(dead_code)]
 fn encrypt(plaintext: &[u8], key: &[u8], iv: &[u8]) -> Vec<u8> {
     let mut ciphertext = Vec::with_capacity(plaintext.len());
     let mut prev_block = iv.to_vec();

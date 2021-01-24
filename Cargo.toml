@@ -1,0 +1,14 @@
+[workspace]
+members = [
+    "chal1",
+    "chal2",
+    "chal3",
+    "chal4",
+    "chal5",
+    "chal6",
+    "chal7",
+    "chal8",
+    "chal9",
+    "chal10",
+    "chal11",
+]

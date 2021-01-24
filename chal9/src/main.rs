@@ -1,5 +1,5 @@
 fn main() {
-    println!("Hello, world!");
+    println!("{:?}", pkcs7("YELLOW SUBMARINE", 20));
 }
 
 fn pkcs7(str: &str, len: usize) -> String {

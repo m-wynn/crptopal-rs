@@ -6,7 +6,7 @@ use transpose;
 
 fn main() {
     let input = File::open("6.txt").unwrap();
-    decrypt(
+    let result = decrypt(
         &base64::decode(
             &BufReader::new(input)
                 .lines()
@@ -15,13 +15,20 @@ fn main() {
                 .join(""),
         )
         .unwrap(),
-    )
+    );
+    let result = String::from_utf8(result).unwrap();
+    println!("{}", result);
 }
 
-fn decrypt(file: &[u8]) {
+fn decrypt(file: &[u8]) -> Vec<u8> {
+    // Let KEYSIZE be the guessed length of the key; try values from 2 to (say) 40.
     let mut keysizes_to_try: Vec<_> = (2usize..40usize)
         .map(|keysize| {
             (
+                // For each KEYSIZE, take the first KEYSIZE worth of bytes,
+                // and the second KEYSIZE worth of bytes, and find the edit
+                // distance between them. Normalize this result by dividing by
+                // KEYSIZE.
                 file.clone()
                     .chunks_exact(keysize)
                     .collect::<Vec<_>>()
@@ -33,13 +40,15 @@ fn decrypt(file: &[u8]) {
         })
         .collect();
     keysizes_to_try.sort();
+    // The KEYSIZE with the smallest normalized edit distance is probably the key.
+    // You could proceed perhaps with the smallest 2-3 KEYSIZE values.
+    // Or take 4 KEYSIZE blocks instead of 2 and average the distances.
     keysizes_to_try
         .iter()
         .take(4)
         .map(|(_distance, keysize)| *keysize)
-        // (1..40) // temp
         .into_iter()
-        .for_each(|keysize| {
+        .map(|keysize| {
             // i.e. for keysize 4:
             // file: [0, 1, 2, 3,
             //        4, 5, 6, 7,
@@ -49,24 +58,31 @@ fn decrypt(file: &[u8]) {
             //        1, 5, 9, 17, ...
             //        ...]
             let height = file.len() / keysize; // Round down a bit
+                                               //  Now that you probably know the KEYSIZE: break the ciphertext
+                                               //  into blocks of KEYSIZE length.
             let mut transposed_chunks = vec![0; keysize * height];
+            // Now transpose the blocks: make a block that is the first byte
+            // of every block, and a block that is the second byte of every
+            // block, and so on.
             transpose::transpose(
                 &file[0..keysize * height],
                 &mut transposed_chunks,
                 keysize,
                 height,
             );
-            // println!("{:?}", &file[0..20]);
-            // println!("{:?}", &transposed_chunks[0..20]);
             let chunks = transposed_chunks.chunks(height);
+            // Solve each block as if it was single-character XOR
             let solved_chunks = find_the_xor(chunks);
             let key: Vec<u8> = solved_chunks.iter().map(|(_, _, k)| *k).collect();
-            println!("Solving for keysize {} with key: {:?}", keysize, key);
-            println!(
-                "Got result {:?}",
-                String::from_utf8(repeating_xor(file, &key))
-            );
-        });
+            // For each block, the single-byte XOR key that produces the best looking
+            // histogram is the repeating-key XOR key byte for that block.
+            // Put them together and you have the key.
+            let score: i64 = solved_chunks.iter().map(|(score, _, _)| *score).sum();
+            (score, repeating_xor(file, &key))
+        })
+        .max()
+        .unwrap()
+        .1
 }
 
 fn repeating_xor(one: &[u8], two: &[u8]) -> Vec<u8> {

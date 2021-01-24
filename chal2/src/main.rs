@@ -1,14 +1,15 @@
-use hex;
-
 fn main() {
-    println!("Hello, world!");
+    println!(
+        "{:?}",
+        fixed_xor(
+            &hex::decode("1c0111001f010100061a024b53535009181c").unwrap(),
+            &hex::decode("686974207468652062756c6c277320657965").unwrap()
+        )
+    );
 }
 
 fn fixed_xor(one: &[u8], two: &[u8]) -> Vec<u8> {
-    one.iter()
-        .zip(two)
-        .map(|(a, b)| (a & !b) | (!a & b))
-        .collect()
+    one.iter().zip(two).map(|(a, b)| (a ^ b)).collect()
 }
 
 #[test]

@@ -1,7 +1,11 @@
-use hex;
-
 fn main() {
-    println!("Hello, world!");
+    println!(
+        "{:?}",
+        repeating_xor(
+            b"Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal",
+            b"ICE",
+        )
+    );
 }
 
 fn repeating_xor(one: &[u8], two: &[u8]) -> Vec<u8> {
