@@ -1,8 +1,10 @@
 [package]
+name = "chal12"
+version = "0.1.0"
 authors = ["Matthew Wynn <matthew@matthewwynn.com>"]
 edition = "2018"
-name = "chal11"
-version = "0.1.0"
 [dependencies]
-rand = "*"
+base64 = "*"
 rust-crypto = "*"
+rand = "*"
+lazy_static = "*"
